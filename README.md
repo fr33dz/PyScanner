@@ -47,3 +47,11 @@ Port 3306: MYSQL
 
 Port 10000: Webmin
 
+### TODO
+
+- [x] : Scan all importants ports
+- []  : Get OS of target
+- []  : Get details from SHADOW, from other source ..
+- []  : Brute Force
+- []  : Scan with OWASP ZAP
+- []  : Create WebUI with Django
