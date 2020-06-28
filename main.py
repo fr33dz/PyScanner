@@ -1,6 +1,10 @@
 #! /usr/bin/python
+from pprint import pprint
 
 from scapy.all import *
+
+from attack import run_ssh_attack
+
 
 def is_open(target, port):
     """
@@ -9,11 +13,14 @@ def is_open(target, port):
             port : service port, EX 22 for SSH.
     :return: 1 if ssh port is open, 0 else.
     """
-    rep, no_rep = sr(IP(dst=target)/TCP(dport=port, flags="S"), timeout=5)
+    rep, no_rep = sr(IP(dst=target) / TCP(dport=port, flags="S"), timeout=5)
     for elem in rep:
-        if 'SA' in str(elem[1].flags): # SYN-ACK
-            print('OPEN'); return 1
-    print('CLOSE'); return 0
+        if 'SA' in str(elem[1].flags):  #  SYN-ACK
+            print('OPEN');
+            return 1
+    print('CLOSE');
+    return 0
+
 
 def ping(target):
     """
@@ -26,6 +33,7 @@ def ping(target):
         if elem[1].type == 0:  # 0 <=> echo-reply
             return 1
     return 0
+
 
 def scan_all_ports(target, ports):
     """
@@ -49,11 +57,21 @@ def main():
         print("KO")
     """
     is_open('192.168.1.6', 21)
-    ports = {'tftp':20, 'ftp':21, 'ssh':22, 'telnet':23, 'smtp':25, 'dns':53, 'dhcp':67, 'dhcp1':68, 'http':80,
-             'pop3':110, 'nfs':111, 'nfs1':2049, 'samba':137, 'samba2':139, 'imap':143, 'snmp':161, 'snmptrap':162,
-             'https':443, 'samba1':445, 'smtpauth':587, 'heartbeat':694, 'imap1':995, 'mysql':3306, 'webmin':10000}
+    ports = {'tftp': 20, 'ftp': 21, 'ssh': 22, 'telnet': 23, 'smtp': 25, 'dns': 53, 'dhcp': 67, 'dhcp1': 68, 'http': 80,
+             'pop3': 110, 'nfs': 111, 'nfs1': 2049, 'samba': 137, 'samba2': 139, 'imap': 143, 'snmp': 161,
+             'snmptrap': 162,
+             'https': 443, 'samba1': 445, 'smtpauth': 587, 'heartbeat': 694, 'imap1': 995, 'mysql': 3306,
+             'webmin': 10000}
 
     scan_all_ports('192.168.1.6', ports=ports)
 
+
 if __name__ == "__main__":
-    main()
+    # main()
+    user = 'yacine'
+    host = 'localhost'
+    port = 22
+    passwords = ['secret10', 'linux00', 'pass010', '123test', 'azerty', '1010ree', 'tt120', '2020ml', '45m1ui', 'h12jh', 'j15mkj',
+                 'aze0101kl']
+    run_ssh_attack(host=host, user=user, users=None, port=port, passwords=passwords, nb_thread=3)
+

