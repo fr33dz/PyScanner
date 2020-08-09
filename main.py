@@ -71,7 +71,10 @@ if __name__ == "__main__":
     user = 'yacine'
     host = 'localhost'
     port = 22
-    passwords = ['secret10', 'linux00', 'pass010', '123test', 'azerty', '1010ree', 'tt120', '2020ml', '45m1ui', 'h12jh', 'j15mkj',
-                 'aze0101kl']
+    passwords = [x.replace('\n', '') for x in open('passwords.txt').readlines() ]
+    #passwords = ['secret10', 'linux00', 'pass010', '123test', 'azerty', '1010ree', 'tt120', '2020ml', '45m1ui', 'h12jh', 'j15mkj']
     run_ssh_attack(host=host, user=user, users=None, port=port, passwords=passwords, nb_thread=3)
 
+# TODO
+# add passwords text file to set variable : OK
+# add Hydra API

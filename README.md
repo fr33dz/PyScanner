@@ -1,9 +1,9 @@
-# PyScanner
+## PyScanner
 
-python tool to scan open ports
+python tool to scan open ports.(Linux, Windows)
 
 
-## Ports to scan
+### Ports to scan
 
 Port 20: FTP-DATA
 

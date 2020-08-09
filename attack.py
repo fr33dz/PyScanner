@@ -66,5 +66,4 @@ def run_ssh_attack(host, user, users, passwords, port, nb_thread):
             th.start()
             threads.append(th)
 
-# TODO
-# add passwords text file to set variable
+
